@@ -9,12 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.6.0",
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@vis.gl/react-google-maps": "^1.2.0",
     "next": "14.2.13",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@types/google.maps": "^3.58.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
