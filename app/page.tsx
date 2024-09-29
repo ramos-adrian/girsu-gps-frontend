@@ -38,6 +38,14 @@ export default function Home() {
                         gestureHandling={process.env.NEXT_PUBLIC_GOOGLE_MAP_GESTURE_HANDLING as string}
                         disableDefaultUI={true}
                         mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
+                        restriction={{
+                            latLngBounds: {
+                                north: parseFloat(process.env.NEXT_PUBLIC_CITY_RESTRICTION_NORTH as string),
+                                south: parseFloat(process.env.NEXT_PUBLIC_CITY_RESTRICTION_SOUTH as string),
+                                east: parseFloat(process.env.NEXT_PUBLIC_CITY_RESTRICTION_EAST as string),
+                                west: parseFloat(process.env.NEXT_PUBLIC_CITY_RESTRICTION_WEST as string)
+                            },
+                        }}
                     >
                         <PoiMarkers pois={locations}/>
                     </Map>
