@@ -1,6 +1,6 @@
 'use client';
 
-import {AdvancedMarker, APIProvider, Map, Pin} from "@vis.gl/react-google-maps";
+import {AdvancedMarker, APIProvider, Map} from "@vis.gl/react-google-maps";
 import React from "react";
 import {TruckIcon} from "@/app/ui/TruckIcon";
 
@@ -12,17 +12,14 @@ const locations: Poi[] = [
     {key: 'truck4', location: {lat: -26.799738657835317, lng: -65.21898715450519}, direction: "E"},
 ];
 
-const PoiMarkers = (props: { pois: Poi[] }) => {
-    return (
-        <>
-            {props.pois.map((poi: Poi) => (
-                <AdvancedMarker key={poi.key} position={poi.location}>
-                    <TruckIcon direction={poi.direction}/>
-                </AdvancedMarker>
-            ))}
-        </>
-    );
-};
+const PoiMarkers = (props: { pois: Poi[] }) =>
+    <>
+        {props.pois.map((poi: Poi) => (
+            <AdvancedMarker key={poi.key} position={poi.location}>
+                <TruckIcon direction={poi.direction}/>
+            </AdvancedMarker>
+        ))}
+    </>
 
 
 export default function Home() {
@@ -38,7 +35,7 @@ export default function Home() {
                             lng: parseFloat(process.env.NEXT_PUBLIC_CITY_LNG as string)
                         }}
                         defaultZoom={parseInt(process.env.NEXT_PUBLIC_CITY_ZOOM as string)}
-                        gestureHandling={'greedy'}
+                        gestureHandling={process.env.NEXT_PUBLIC_GOOGLE_MAP_GESTURE_HANDLING as string}
                         disableDefaultUI={true}
                         mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
                     >
