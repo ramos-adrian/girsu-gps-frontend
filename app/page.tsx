@@ -1,28 +1,75 @@
 'use client';
 
 import {AdvancedMarker, APIProvider, Map} from "@vis.gl/react-google-maps";
-import React from "react";
+import React, {useEffect, useState} from "react";
+import {Client} from "@stomp/stompjs";
 import {TruckIcon} from "@/app/ui/TruckIcon";
 
-type Poi = { key: string, location: google.maps.LatLngLiteral, direction?: "N" | "S" | "E" | "W" };
-const locations: Poi[] = [
-    {key: 'truck1', location: {lat: -26.805625996712127, lng: -65.22687238990655}, direction: "N"},
-    {key: 'truck2', location: {lat: -26.80660066039759, lng: -65.21893113020847}},
-    {key: 'truck3', location: {lat: -26.809142935573686, lng: -65.22340401023874}, direction: "S"},
-    {key: 'truck4', location: {lat: -26.799738657835317, lng: -65.21898715450519}, direction: "E"},
-];
+type Poi = {
+    id: number,
+    truckId: number,
+    latitude: number,
+    longitude: number,
+    timestamp: number,
+    direction?: "N" | "S" | "E" | "W"
+};
+type TruckLocationUpdateDTO = {
+    id: number;
+    truckId: number;
+    latitude: number;
+    longitude: number;
+    timestamp: number;
+};
 
-const PoiMarkers = (props: { pois: Poi[] }) =>
-    <>
-        {props.pois.map((poi: Poi) => (
-            <AdvancedMarker key={poi.key} position={poi.location}>
+// Websocket Client
+function receiveTruckPositionUpdates(setPois: (value: (((prevState: Poi[]) => Poi[]) | Poi[])) => void) {
+
+    const client = new Client({
+        brokerURL: process.env.NEXT_PUBLIC_CITY_WEB_SOCKET_BROKER_URL as string,
+        onConnect: () => {
+            client.subscribe(process.env.NEXT_PUBLIC_CITY_WEB_SOCKET_TRUCK_LOCATION_UPDATES_TOPIC as string, (message) => {
+                const data: TruckLocationUpdateDTO = JSON.parse(message.body);
+                setPois((prevState: Poi[]) => {
+                    return prevState.filter(poi => poi.truckId !== data.truckId
+                        && (Date.now() - data.timestamp <= 10 * 60 * 1000)) // Discard old updates (older than 10 minutes)
+                        .concat({
+                            id: data.truckId,
+                            truckId: data.truckId,
+                            latitude: data.latitude,
+                            longitude: data.longitude,
+                            timestamp: data.timestamp,
+                            // TODO Add direction to the truck icon
+                        })
+                });
+            });
+        },
+        onDisconnect: () => {
+            console.log('Disconnected from WebSocket');
+        },
+    });
+
+    client.activate();
+}
+
+const PoiMarkers = () => {
+
+    const [pois, setPois] = useState<Poi[]>([]);
+
+    useEffect(() => {
+        receiveTruckPositionUpdates(setPois);
+    }, []);
+
+    return <>
+        {pois.map((poi: Poi) => (
+            <AdvancedMarker key={poi.truckId} position={{lat: poi.latitude, lng: poi.longitude}}>
                 <TruckIcon direction={poi.direction}/>
             </AdvancedMarker>
         ))}
     </>
-
+}
 
 export default function Home() {
+
     return (
         <main className="container mx-auto flex flex-col">
             <h1 className="text-4xl font-semibold text-center mb-3">Mapa de Camiones de Residuos</h1>
@@ -47,7 +94,7 @@ export default function Home() {
                             },
                         }}
                     >
-                        <PoiMarkers pois={locations}/>
+                        <PoiMarkers/>
                     </Map>
                 </div>
             </APIProvider>

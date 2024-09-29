@@ -23,6 +23,7 @@ const Navbar: React.FC = () => {
                 </div>
 
                 {/* Links */}
+                {/* TODO Highlight active link */}
                 <div className="hidden md:flex w-full justify-evenly">
                     <Link href="/">
                         <div className="text-gray-400 hover:text-yellow-300">INICIO</div>
