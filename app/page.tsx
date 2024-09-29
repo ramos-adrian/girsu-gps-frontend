@@ -21,15 +21,34 @@ type TruckLocationUpdateDTO = {
     timestamp: number;
 };
 
+// Singleton WebSocket Client
+let client: Client | null = null;
+
 // Websocket Client
 function receiveTruckPositionUpdates(setPois: (value: (((prevState: Poi[]) => Poi[]) | Poi[])) => void) {
+    if (client) return;
 
-    const client = new Client({
+    client = new Client({
         brokerURL: process.env.NEXT_PUBLIC_CITY_WEB_SOCKET_BROKER_URL as string,
         onConnect: () => {
-            client.subscribe(process.env.NEXT_PUBLIC_CITY_WEB_SOCKET_TRUCK_LOCATION_UPDATES_TOPIC as string, (message) => {
+            client?.subscribe(process.env.NEXT_PUBLIC_CITY_WEB_SOCKET_TRUCK_LOCATION_UPDATES_TOPIC as string, (message) => {
                 const data: TruckLocationUpdateDTO = JSON.parse(message.body);
                 setPois((prevState: Poi[]) => {
+                    // Find the truck in the list if it exists
+                    const existingPoi = prevState.find(poi => poi.truckId === data.truckId);
+                    if (existingPoi) {
+                        // Calculate the direction of the truck
+                        const angle = Math.atan2(data.latitude - existingPoi.latitude, data.longitude - existingPoi.longitude) * 180 / Math.PI;
+                        if (angle > -45 && angle <= 45) {
+                            existingPoi.direction = "E";
+                        } else if (angle > 45 && angle <= 135) {
+                            existingPoi.direction = "N";
+                        } else if (angle > -135 && angle <= -45) {
+                            existingPoi.direction = "S";
+                        } else {
+                            existingPoi.direction = "W";
+                        }
+                    }
                     return prevState.filter(poi => poi.truckId !== data.truckId
                         && (Date.now() - data.timestamp <= 10 * 60 * 1000)) // Discard old updates (older than 10 minutes)
                         .concat({
@@ -38,7 +57,7 @@ function receiveTruckPositionUpdates(setPois: (value: (((prevState: Poi[]) => Po
                             latitude: data.latitude,
                             longitude: data.longitude,
                             timestamp: data.timestamp,
-                            // TODO Add direction to the truck icon
+                            direction: existingPoi?.direction
                         })
                 });
             });
