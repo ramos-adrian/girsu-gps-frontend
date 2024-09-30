@@ -26,7 +26,7 @@ const Navbar: React.FC = () => {
                 {/* TODO Highlight active link */}
                 <div className="hidden md:flex w-full justify-evenly">
                     <Link href="/">
-                        <div className="text-gray-400 hover:text-yellow-300">INICIO</div>
+                        <div className="text-gray-400 hover:text-yellow-300">MAPA</div>
                     </Link>
                     <Link href="/horarios">
                         <div className="text-gray-400 hover:text-yellow-300">HORARIOS</div>
@@ -49,14 +49,11 @@ const Navbar: React.FC = () => {
             {isOpen && (
                 <div className="md:hidden bg-gray-700">
                     <Link href="/">
-                        <div className="block px-4 py-2 text-gray-300 hover:bg-gray-600">Inicio</div>
+                        <div className="block px-4 py-2 text-gray-300 hover:bg-gray-600">Mapa</div>
                     </Link>
                     <Link href="/horarios">
                         <div className="block px-4 py-2 text-gray-300 hover:bg-gray-600">Horarios</div>
                     </Link>
-                    <button className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 mt-2">
-                        Mi Cuenta
-                    </button>
                 </div>
             )}
         </header>

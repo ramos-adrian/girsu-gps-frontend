@@ -1,9 +1,9 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSortUp, faTruck} from "@fortawesome/free-solid-svg-icons";
 import React from "react";
+import {MovementDirection} from "@/app/types";
 
-
-const getArrowRotation = (direction?: "N" | "S" | "E" | "W") => {
+const getArrowRotation = (direction: MovementDirection) => {
     switch (direction) {
         case "N":
             return 0;
@@ -18,8 +18,7 @@ const getArrowRotation = (direction?: "N" | "S" | "E" | "W") => {
     }
 };
 
-
-const getTruckRotation = (direction?: "N" | "S" | "E" | "W") => {
+const getTruckRotation = (direction: MovementDirection) => {
     switch (direction) {
         case "N":
             return -90;
@@ -34,7 +33,7 @@ const getTruckRotation = (direction?: "N" | "S" | "E" | "W") => {
     }
 };
 
-const getPositionStyle = (direction?: "N" | "S" | "E" | "W") => {
+const getPositionStyle = (direction: MovementDirection) => {
     switch (direction) {
         case "N":
             return {bottom: '100%', left: '50%', transform: 'translateX(-50%)'};
@@ -49,13 +48,13 @@ const getPositionStyle = (direction?: "N" | "S" | "E" | "W") => {
     }
 };
 
-const getFlip = (direction?: "N" | "S" | "E" | "W") => {
+const getFlip = (direction: MovementDirection) => {
     return direction === "W" ? "scaleX(-1)" : "";
 };
 
-export const TruckIcon = ({direction}: { direction?: "N" | "S" | "E" | "W" }) =>
+export const TruckIcon = ({direction}: { direction: MovementDirection }) =>
     <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
-        <FontAwesomeIcon icon={faTruck} size="2x" color="green"             style={{
+        <FontAwesomeIcon icon={faTruck} size="2x" color="green" style={{
             transform: `${getFlip(direction)} rotate(${getTruckRotation(direction)}deg)`
         }}/>
         {direction && (
