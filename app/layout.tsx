@@ -7,6 +7,9 @@ import Footer from "@/app/ui/Footer";
 export default function RootLayout({children,}: Readonly<{ children: React.ReactNode }>) {
     return (
         <>
+            <head>
+                <title>Camiones de Residuos</title>
+            </head>
             <html lang="en">
             <body className={`${poppins.className} antialiased`}>
             <Navbar/>
