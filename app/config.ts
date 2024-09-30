@@ -29,8 +29,8 @@ export const mapRestriction = {
 };
 
 // Connection to the WebSocket
-export const brokerURL = process.env.NEXT_PUBLIC_CITY_WEB_SOCKET_BROKER_URL as string
-export const truckLocationUpdatesTopic = process.env.NEXT_PUBLIC_CITY_WEB_SOCKET_TRUCK_LOCATION_UPDATES_TOPIC as string
+export const brokerURL = process.env.NEXT_PUBLIC_WEB_SOCKET_BROKER_URL as string
+export const truckLocationUpdatesTopic = process.env.NEXT_PUBLIC_WEB_SOCKET_TRUCK_LOCATION_UPDATES_TOPIC as string
 
 export const maxUpdateAge =  10 * 60 * 1000; // Maximum age of a truck update (in milliseconds) to be shown on the map
 
@@ -39,4 +39,4 @@ export const facebookLink = process.env.NEXT_PUBLIC_FACEBOOK_LINK as string
 export const instagramLink = process.env.NEXT_PUBLIC_INSTAGRAM_LINK as string
 export const twitterLink = process.env.NEXT_PUBLIC_TWITTER_LINK as string
 export const youtubeLink = process.env.NEXT_PUBLIC_YOUTUBE_LINK as string
-export const municipalidadLink = process.env.NEXT_PUBLIC_MUNICIPALIDAD_LINK as string
+export const websiteLink = process.env.NEXT_PUBLIC_WEBSITE_LINK as string

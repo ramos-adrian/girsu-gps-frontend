@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faFacebook, faInstagram, faTwitter, faYoutube} from '@fortawesome/free-brands-svg-icons';
-import {facebookLink, instagramLink, municipalidadLink, twitterLink, youtubeLink} from "@/app/config";
+import {facebookLink, instagramLink, websiteLink, twitterLink, youtubeLink} from "@/app/config";
 
 const Footer: React.FC = () => {
     return (
@@ -21,7 +21,7 @@ const Footer: React.FC = () => {
                         <a href={instagramLink}><FontAwesomeIcon icon={faInstagram} height="1.2em"/></a>
                         <a href={twitterLink}><FontAwesomeIcon icon={faTwitter} height="1.2em"/></a>
                         <a href={youtubeLink}><FontAwesomeIcon icon={faYoutube} height="1.2em"/></a>
-                        <a href={municipalidadLink}>
+                        <a href={websiteLink}>
                             <Image src="/logoMuni-sm.png" alt="Logo Muni" width={22} height={22} />
                         </a>
                     </div>
