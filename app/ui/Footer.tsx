@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faFacebook, faInstagram, faTwitter, faYoutube} from '@fortawesome/free-brands-svg-icons';
+import {facebookLink, instagramLink, municipalidadLink, twitterLink, youtubeLink} from "@/app/config";
 
 const Footer: React.FC = () => {
     return (
@@ -16,11 +17,11 @@ const Footer: React.FC = () => {
                 <div className="text-xs md:text-base text-center flex flex-col md:flex-col md:text-right font-normal md:font-semibold leading-loose">
                     <div className="mb-2 flex flex-row space-x-3 justify-evenly md:justify-end items-center">
                         <div>Seguinos en</div>
-                        <a href="https://www.facebook.com/MuniSMTucuman/"><FontAwesomeIcon icon={faFacebook} height="1.2em"/></a>
-                        <a href="https://www.instagram.com/munismtucuman/"><FontAwesomeIcon icon={faInstagram} height="1.2em"/></a>
-                        <a href="https://twitter.com/muniSMT"><FontAwesomeIcon icon={faTwitter} height="1.2em"/></a>
-                        <a href="https://www.youtube.com/munismtucuman"><FontAwesomeIcon icon={faYoutube} height="1.2em"/></a>
-                        <a href="https://smt.gob.ar/">
+                        <a href={facebookLink}><FontAwesomeIcon icon={faFacebook} height="1.2em"/></a>
+                        <a href={instagramLink}><FontAwesomeIcon icon={faInstagram} height="1.2em"/></a>
+                        <a href={twitterLink}><FontAwesomeIcon icon={faTwitter} height="1.2em"/></a>
+                        <a href={youtubeLink}><FontAwesomeIcon icon={faYoutube} height="1.2em"/></a>
+                        <a href={municipalidadLink}>
                             <Image src="/logoMuni-sm.png" alt="Logo Muni" width={22} height={22} />
                         </a>
                     </div>

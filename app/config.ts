@@ -35,3 +35,8 @@ export const truckLocationUpdatesTopic = process.env.NEXT_PUBLIC_CITY_WEB_SOCKET
 export const maxUpdateAge =  10 * 60 * 1000; // Maximum age of a truck update (in milliseconds) to be shown on the map
 
 // Links
+export const facebookLink = process.env.NEXT_PUBLIC_FACEBOOK_LINK as string
+export const instagramLink = process.env.NEXT_PUBLIC_INSTAGRAM_LINK as string
+export const twitterLink = process.env.NEXT_PUBLIC_TWITTER_LINK as string
+export const youtubeLink = process.env.NEXT_PUBLIC_YOUTUBE_LINK as string
+export const municipalidadLink = process.env.NEXT_PUBLIC_MUNICIPALIDAD_LINK as string
