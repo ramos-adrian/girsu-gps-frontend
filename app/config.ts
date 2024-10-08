@@ -28,6 +28,8 @@ export const mapRestriction = {
     }
 };
 
+export const apiBaseUrl = process.env.API_URL as string
+
 // Connection to the WebSocket
 export const brokerURL = process.env.NEXT_PUBLIC_WEB_SOCKET_BROKER_URL as string
 export const truckLocationUpdatesTopic = process.env.NEXT_PUBLIC_WEB_SOCKET_TRUCK_LOCATION_UPDATES_TOPIC as string

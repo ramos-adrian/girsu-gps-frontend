@@ -21,3 +21,8 @@ export type LatLngLiteral = {
     lat: number;
     lng: number;
 };
+
+export type Truck = {
+    id: number;
+    plate: string;
+};
