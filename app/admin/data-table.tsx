@@ -18,21 +18,41 @@ import {
 } from "@/components/ui/table"
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input"
-import React from "react";
+import React, {useEffect, useState} from "react";
+import {AddTruckBtn} from "@/app/admin/AddTruckButton";
+import {apiBaseUrl} from "@/app/config";
+import {Truck} from "@/app/types";
 
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[]
+interface DataTableProps<TValue> {
+    columns: ColumnDef<Truck, TValue>[]
 }
 
-const addTruck = () => {
+export function DataTable<TValue>({columns}: DataTableProps<TValue>) {
 
-}
+    const [data, setData] = useState<Truck[]>([]);
 
-export function DataTable<TData, TValue>({
-                                             columns,
-                                             data,
-                                         }: DataTableProps<TData, TValue>) {
+    useEffect(() => {
+        const url = `${apiBaseUrl}/trucks`;
+        fetch(url, {
+            headers: {
+                Authorization: `Basic ${btoa("admin:smtadminx")}`, // TODO use a secure way to store credentials
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                setData(data);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                setData([]);
+            });
+    }, []);
 
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
 
@@ -51,8 +71,8 @@ export function DataTable<TData, TValue>({
     return (
         <div className="pt-4">
             <div className="flex flex-col md:flex-row md:justify-between">
-                <Button variant="default" className="mb-4 md:hidden" onClick={addTruck}>Añadir camión</Button>
-                <div className="items-center mb-4">
+                <AddTruckBtn data={data} setData={setData} className="mb-4 md:hidden" />
+                <div className="mb-4">
                     <Input
                         placeholder="Filtrar por patente..."
                         value={(table.getColumn("plate")?.getFilterValue() as string) ?? ""}
@@ -62,7 +82,7 @@ export function DataTable<TData, TValue>({
                         className="max-w-sm"
                     />
                 </div>
-                <Button variant="default" className="hidden mb-4 md:flex">Añadir camión</Button>
+                <AddTruckBtn data={data} setData={setData} className="hidden mb-4 md:flex" />
             </div>
             <div className="rounded-md border">
                 <Table>
