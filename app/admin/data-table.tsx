@@ -20,7 +20,7 @@ import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input"
 import React, {useEffect, useState} from "react";
 import {AddTruckBtn} from "@/app/admin/AddTruckButton";
-import {apiBaseUrl} from "@/app/config";
+import {publicApiBaseURL} from "@/app/config";
 import {Truck} from "@/app/types";
 
 interface DataTableProps<TValue> {
@@ -32,12 +32,12 @@ export function DataTable<TValue>({columns}: DataTableProps<TValue>) {
     const [data, setData] = useState<Truck[]>([]);
 
     useEffect(() => {
-        const url = `${apiBaseUrl}/trucks`;
+        const url = `${publicApiBaseURL}/trucks`;
         fetch(url, {
             headers: {
-                Authorization: `Basic ${btoa("admin:smtadminx")}`, // TODO use a secure way to store credentials
                 'Content-Type': 'application/json',
-            }
+            },
+            credentials: 'include',
         })
             .then(response => {
                 if (!response.ok) {

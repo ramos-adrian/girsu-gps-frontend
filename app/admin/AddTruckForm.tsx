@@ -6,7 +6,7 @@ import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import {apiBaseUrl} from "@/app/config";
+import {publicApiBaseURL} from "@/app/config";
 import React from "react";
 import {Truck} from "@/app/types";
 
@@ -41,17 +41,14 @@ export const AddTruckForm = ({data, setIsOpen, setData}: AddTruckFormProps) => {
     });
 
     const onSubmit = (values: z.infer<typeof formSchema>) => {
-        // TODO Change to use the user from the session
-        const user = "admin"; // Warning: This is a hardcoded user, it should be replaced by the user from the session
-        const password = "smtadminx"; // Warning: This is a hardcoded password, it should be replaced by the password from the session
 
-        fetch(`${apiBaseUrl}/trucks`, {
+        fetch(`${publicApiBaseURL}/trucks`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Basic ${btoa(`${user}:${password}`)}`,
             },
-            body: JSON.stringify(values)
+            body: JSON.stringify(values),
+            credentials: 'include',
         })
             .then(response => {
                 if (!response.ok) throw new Error(response.statusText);
