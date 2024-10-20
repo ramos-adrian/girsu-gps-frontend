@@ -3,6 +3,7 @@ import Image from 'next/image';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faFacebook, faInstagram, faTwitter, faYoutube} from '@fortawesome/free-brands-svg-icons';
 import {facebookLink, instagramLink, websiteLink, twitterLink, youtubeLink} from "@/app/config";
+import Link from "next/link";
 
 const Footer: React.FC = () => {
     return (
@@ -29,6 +30,7 @@ const Footer: React.FC = () => {
                     <p>Municipalidad de San Miguel de Tucumán</p>
                     <p>9 de Julio 598, Tucumán. República Argentina</p>
                     <p>Municipalidad: 0381-4516500</p>
+                    <Link href={"/admin"}>Panel de administración</Link>
                 </div>
             </div>
 
