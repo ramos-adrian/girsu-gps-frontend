@@ -25,4 +25,5 @@ export type LatLngLiteral = {
 export type Truck = {
     id: number;
     plate: string;
+    route: boolean
 };

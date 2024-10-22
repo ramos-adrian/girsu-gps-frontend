@@ -71,7 +71,7 @@ export function DataTable<TValue>({columns}: DataTableProps<TValue>) {
     return (
         <div className="pt-4">
             <div className="flex flex-col md:flex-row md:justify-between">
-                <AddTruckBtn data={data} setData={setData} className="mb-4 md:hidden" />
+                <AddTruckBtn data={data} setData={setData} className="mb-4 md:hidden"/>
                 <div className="mb-4">
                     <Input
                         placeholder="Filtrar por patente..."
@@ -82,7 +82,7 @@ export function DataTable<TValue>({columns}: DataTableProps<TValue>) {
                         className="max-w-sm"
                     />
                 </div>
-                <AddTruckBtn data={data} setData={setData} className="hidden mb-4 md:flex" />
+                <AddTruckBtn data={data} setData={setData} className="hidden mb-4 md:flex"/>
             </div>
             <div className="rounded-md border">
                 <Table>
@@ -111,11 +111,18 @@ export function DataTable<TValue>({columns}: DataTableProps<TValue>) {
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
                                 >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
+
+                                    {row.getVisibleCells().map((cell) => {
+                                        if (cell.column.id == "route")
+                                            return (<TableCell key={cell.id}>
+                                                {flexRender(cell.column.columnDef.cell ? "Sí" : "No", cell.getContext())}
+                                            </TableCell>)
+
+                                        return (<TableCell key={cell.id}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    ))}
+                                        </TableCell>)
+                                    })}
+
                                 </TableRow>
                             ))
                         ) : (

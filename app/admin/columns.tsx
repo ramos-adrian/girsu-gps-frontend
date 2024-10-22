@@ -25,6 +25,10 @@ export const columns: ColumnDef<Truck>[] = [
         header: "Patente",
     },
     {
+      accessorKey: "route",
+      header: "Ruta asignada",
+    },
+    {
         id: "actions",
         cell: ({row}) => {
             const truck = row.original;
