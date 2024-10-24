@@ -3,7 +3,7 @@ import type {NextRequest} from 'next/server';
 import {privateApiBaseURL} from '@/app/config';
 
 export async function middleware(request: NextRequest) {
-    if (request.nextUrl.pathname.startsWith('/admin')) {
+    if (['/admin', '/editRoute'].some(path => request.nextUrl.pathname.startsWith(path))) {
         const cookie = request.cookies.get('JSESSIONID');
 
         if (!cookie) {

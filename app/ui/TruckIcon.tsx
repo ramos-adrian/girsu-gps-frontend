@@ -54,9 +54,11 @@ const getFlip = (direction: MovementDirection) => {
 
 export const TruckIcon = ({direction}: { direction: MovementDirection }) =>
     <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
-        <FontAwesomeIcon icon={faTruck} size="2x" color="green" style={{
-            transform: `${getFlip(direction)} rotate(${getTruckRotation(direction)}deg)`
-        }}/>
+        {direction &&
+            <FontAwesomeIcon icon={faTruck} size="2x" color="green" style={{
+                transform: `${getFlip(direction)} rotate(${getTruckRotation(direction)}deg)`
+            }}/>
+        }
         {direction && (
             <FontAwesomeIcon
                 icon={faSortUp}

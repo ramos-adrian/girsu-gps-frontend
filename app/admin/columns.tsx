@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import React from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faTrashAlt} from "@fortawesome/free-solid-svg-icons";
+import {faTrashAlt, faRoute} from "@fortawesome/free-solid-svg-icons";
+import Link from "next/link";
 
 export const columns: ColumnDef<Truck>[] = [
     {
@@ -48,6 +49,12 @@ export const columns: ColumnDef<Truck>[] = [
                         <DropdownMenuItem
                             onClick={() => navigator.clipboard.writeText(truck.plate as unknown as string)}>
                             Copiar patente
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator/>
+                        <DropdownMenuItem
+                            onClick={() => {}}>
+                            <FontAwesomeIcon icon={faRoute} className="mr-2"/>
+                            <Link href={`/editRoute/${truck.id}`}>Editar ruta</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator/>
                         <DropdownMenuItem className="text-red-500">
