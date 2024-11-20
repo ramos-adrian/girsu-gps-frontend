@@ -49,30 +49,36 @@ const AddPointBtn = ({setPois, polyline}: AddPointBtnProps) => {
 interface SaveRouteBtnProps {
     truckId?: number | undefined,
     polyline?: null | google.maps.Polyline
+    setPois: setPois,
 }
 
-const SaveRouteBtn = ({truckId, polyline}: SaveRouteBtnProps) => {
+const SaveRouteBtn = ({truckId, polyline, setPois}: SaveRouteBtnProps) => {
+
+    const route = polyline?.getPath().getArray().map((point: google.maps.LatLng) => {
+        return {lat: point.lat(), lng: point.lng()}
+    });
 
     return (
         <Button className="mt-2" onClick={() => {
-            const geohash: string = google.maps.geometry.encoding.encodePath(polyline?.getPath() || []);
-            console.log("GeoHash: ", geohash);
-
-            // Make a PUT request to publicApiBaseUrl + '/trucks/{trucId}/route' with the route coded as GeoHash
-
             fetch(`${publicApiBaseURL}/trucks/${truckId}/route`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: geohash,
+                body: JSON.stringify(route),
                 credentials: 'include'
             }).then(response => {
-                if (response.ok) {
-                    console.log('Route saved');
-                } else {
+                if (!response.ok) {
                     console.log('Error saving route');
                 }
+                return response.json();
+            }).then(data => {
+                setPois(data.map((point: { lat: number, lng: number }) => {
+                    return {id: uuidv4(), lat: point.lat, lng: point.lng}
+                }));
+                polyline?.setPath(data.map((point: { lat: number, lng: number }) => {
+                    return {lat: point.lat, lng: point.lng}
+                }));
             })
 
         }}
@@ -91,11 +97,12 @@ const PoiMarkers = ({pois, setPois, polyline}: {
         const lng = event.latLng?.lng();
         if (lat && lng) setPois(prev => {
             const newPoint = {id, lat, lng};
-            polyline?.setPath(prev.map(poi => poi.id === id ? newPoint : poi).map(poi => ({
+            const newPois = prev.map(poi => poi.id === id ? newPoint : poi);
+            polyline?.setPath(newPois.map(poi => ({
                 lat: poi.lat,
                 lng: poi.lng
             })));
-            return prev.map(poi => poi.id === id ? newPoint : poi)
+            return newPois;
         });
     }
 
@@ -166,10 +173,9 @@ const RouteMap = ({truck}: RouteMapProps) => {
 
     useEffect(() => {
         if (!geoLib) return;
-        const path = geoLib.encoding.decodePath(truck?.route || "")
         const route: latLng[] = [];
-        path.forEach((point, index) => {
-            route.push({id: uuidv4(), lat: point.lat(), lng: point.lng()})
+        truck?.route.forEach((point, index) => {
+            route.push({id: uuidv4(), lat: point.lat, lng: point.lng})
         });
         setPois(route);
         polyline?.setPath(route.map(poi => ({lat: poi.lat, lng: poi.lng})));
@@ -192,7 +198,7 @@ const RouteMap = ({truck}: RouteMapProps) => {
             </Map>
             <div className='flex flex-col ml-3'>
                 <AddPointBtn setPois={setPois} polyline={polyline}/>
-                <SaveRouteBtn truckId={truck?.id} polyline={polyline}/>
+                <SaveRouteBtn truckId={truck?.id} polyline={polyline} setPois={setPois}/>
             </div>
         </div>
     )
