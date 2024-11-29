@@ -165,6 +165,7 @@ const RouteMap = ({truck}: RouteMapProps) => {
                 offset: "100%",
             }],
         });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mapsLib]);
 
     useEffect(() => {
@@ -174,12 +175,12 @@ const RouteMap = ({truck}: RouteMapProps) => {
     useEffect(() => {
         if (!geoLib) return;
         const route: latLng[] = [];
-        truck?.route.forEach((point, index) => {
+        truck?.route.forEach((point) => {
             route.push({id: uuidv4(), lat: point.lat, lng: point.lng})
         });
         setPois(route);
         polyline?.setPath(route.map(poi => ({lat: poi.lat, lng: poi.lng})));
-    }, [geoLib]);
+    }, [geoLib, polyline, truck?.route]);
 
     polyline?.setMap(map);
 

@@ -31,7 +31,7 @@ export default function Page({params}: { params: { truckId: string } }) {
             .catch(error => {
                 console.error('Error fetching data:', error);
             });
-    }, []);
+    }, [params.truckId]);
 
     if (!truck) {
         return <div>Loading...</div>;
