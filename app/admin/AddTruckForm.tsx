@@ -46,9 +46,9 @@ export const AddTruckForm = ({data, setIsOpen, setData}: AddTruckFormProps) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
             body: JSON.stringify(values),
-            credentials: 'include',
         })
             .then(response => {
                 if (!response.ok) throw new Error(response.statusText);
