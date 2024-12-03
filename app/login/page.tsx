@@ -37,15 +37,12 @@ export default function LoginPage() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(data),
-            credentials: 'include'
         })
-            .then(response => {
-                if (response.status === 200) {
-                    router.push('/admin');
-                } else {
-                    console.error('Error:', response);
-                }
-
+            .then(response => response.json())
+            .then(data => {
+                const token = data.token;
+                localStorage.setItem('token', token);
+                router.push('/admin');
             })
             .catch(error => {
                 console.error('Error:', error);

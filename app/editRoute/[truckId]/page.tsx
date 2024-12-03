@@ -15,8 +15,8 @@ export default function Page({params}: { params: { truckId: string } }) {
         fetch(url, {
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
             },
-            credentials: 'include',
         })
             .then(response => {
                 if (!response.ok) {

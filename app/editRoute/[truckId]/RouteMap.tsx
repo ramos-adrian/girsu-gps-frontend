@@ -64,9 +64,9 @@ const SaveRouteBtn = ({truckId, polyline, setPois}: SaveRouteBtnProps) => {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
                 body: JSON.stringify(route),
-                credentials: 'include'
             }).then(response => {
                 if (!response.ok) {
                     console.log('Error saving route');
