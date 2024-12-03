@@ -79,6 +79,7 @@ const startTruckPositionWebsocket = (setPois: SetPoisParamsType) => {
     }
 
     const onConnect = () => {
+        console.log('Connected to WebSocket');
         client?.subscribe(truckLocationUpdatesTopic, onMessage);
     }
 
