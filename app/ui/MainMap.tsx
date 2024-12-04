@@ -76,7 +76,9 @@ const startTruckPositionWebsocket = (setPois: SetPoisParamsType) => {
     if (client) return;
 
     const onMessage: messageCallbackType = (message) => {
+        console.log('Received message from WebSocket');
         const data: TruckLocationUpdateDTO = JSON.parse(message.body);
+        console.log(data);
         setPois(prevState => updatePois(prevState, data));
     }
 

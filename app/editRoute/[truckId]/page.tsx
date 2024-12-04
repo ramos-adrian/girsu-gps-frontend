@@ -25,6 +25,7 @@ export default function Page({params}: { params: { truckId: string } }) {
                 return response.json();
             })
             .then(data => {
+                console.log(data);
                 setTruck(data);
             })
             .catch(error => {
