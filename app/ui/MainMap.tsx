@@ -1,3 +1,5 @@
+'use client'
+
 import {AdvancedMarker, Map} from "@vis.gl/react-google-maps";
 import React, {useEffect, useState} from "react";
 import {Client, messageCallbackType} from "@stomp/stompjs";
