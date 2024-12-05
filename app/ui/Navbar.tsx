@@ -31,6 +31,9 @@ const Navbar: React.FC = () => {
                     <Link href="/horarios">
                         <div className="text-gray-400 hover:text-yellow-300">HORARIOS</div>
                     </Link>
+                    <Link href="/alertas">
+                        <div className="text-gray-400 hover:text-yellow-300">RECIBIR ALERTAS</div>
+                    </Link>
                 </div>
 
                 {/* Mobile menu button */}
@@ -53,6 +56,9 @@ const Navbar: React.FC = () => {
                     </Link>
                     <Link href="/horarios">
                         <div className="block px-4 py-2 text-gray-300 hover:bg-gray-600">Horarios</div>
+                    </Link>
+                    <Link href="/alertas">
+                        <div className="block px-4 py-2 text-gray-300 hover:bg-gray-600">Recibir alertas</div>
                     </Link>
                 </div>
             )}
