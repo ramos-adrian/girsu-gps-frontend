@@ -68,11 +68,8 @@ const updatePois = (prevState: Poi[], data: TruckLocationUpdateDTO) => {
         .concat(newPoi)
 }
 
-// Singleton WebSocket Client
-let client: Client | null = null;
-
 // Websocket Client
-const startTruckPositionWebsocket = (setPois: SetPoisParamsType) => {
+const startTruckPositionWebsocket = (setPois: SetPoisParamsType, client: Client | null, setClient: (value: (((prevState: (Client | null)) => (Client | null)) | Client | null)) => void) => {
     if (client) return;
 
     const onMessage: messageCallbackType = (message) => {
@@ -84,10 +81,11 @@ const startTruckPositionWebsocket = (setPois: SetPoisParamsType) => {
 
     const onConnect = () => {
         console.log('Connected to WebSocket');
-        client?.subscribe(truckLocationUpdatesTopic, onMessage);
+        console.log('Subscribing to WebSocket topic');
+        newClient.subscribe(truckLocationUpdatesTopic, onMessage);
     }
 
-    client = new Client({
+    const newClient = new Client({
         brokerURL,
         onConnect,
         onDisconnect: () => {
@@ -95,15 +93,18 @@ const startTruckPositionWebsocket = (setPois: SetPoisParamsType) => {
         },
     });
 
-    client.activate();
+    newClient.activate();
+
+    setClient(newClient);
 }
 
 const PoiMarkers = () => {
 
     const [pois, setPois] = useState<Poi[]>([]);
+    const [client, setClient] = useState<Client | null>(null);
 
     useEffect(() => {
-        startTruckPositionWebsocket(setPois);
+        startTruckPositionWebsocket(setPois, client, setClient);
     }, []);
 
     return <>
