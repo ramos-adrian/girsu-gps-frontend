@@ -2,20 +2,16 @@
 
 import {AdvancedMarker, Map} from "@vis.gl/react-google-maps";
 import React, {useEffect, useState} from "react";
-import {Client, messageCallbackType} from "@stomp/stompjs";
 import {LatLngLiteral, Poi, MovementDirection, TruckLocationUpdateDTO} from "@/app/types";
 import {TruckIcon} from "@/app/ui/TruckIcon";
 import {
-    brokerURL,
     cityGestureHandling,
     cityMapId,
     cityZoom,
     mapDefaultCenter,
     mapRestriction,
-    mapStyle, maxUpdateAge, truckLocationUpdatesTopic
+    mapStyle, maxUpdateAge, publicApiBaseURL
 } from "@/app/config";
-
-type SetPoisParamsType = (value: (((prevState: Poi[]) => Poi[]) | Poi[])) => void;
 
 /**
  * Calculates the movement direction of a truck based on its old and new positions.
@@ -68,43 +64,32 @@ const updatePois = (prevState: Poi[], data: TruckLocationUpdateDTO) => {
         .concat(newPoi)
 }
 
-// Websocket Client
-const startTruckPositionWebsocket = (setPois: SetPoisParamsType, client: Client | null, setClient: (value: (((prevState: (Client | null)) => (Client | null)) | Client | null)) => void) => {
-    if (client) return;
-
-    const onMessage: messageCallbackType = (message) => {
-        console.log('Received message from WebSocket');
-        const data: TruckLocationUpdateDTO = JSON.parse(message.body);
-        console.log(data);
-        setPois(prevState => updatePois(prevState, data));
-    }
-
-    const onConnect = () => {
-        console.log('Connected to WebSocket');
-        console.log('Subscribing to WebSocket topic');
-        newClient.subscribe(truckLocationUpdatesTopic, onMessage);
-    }
-
-    const newClient = new Client({
-        brokerURL,
-        onConnect,
-        onDisconnect: () => {
-            console.log('Disconnected from WebSocket');
-        },
-    });
-
-    newClient.activate();
-
-    setClient(newClient);
-}
-
 const PoiMarkers = () => {
 
     const [pois, setPois] = useState<Poi[]>([]);
-    const [client, setClient] = useState<Client | null>(null);
 
     useEffect(() => {
-        startTruckPositionWebsocket(setPois, client, setClient);
+        const intervalId = setInterval(() => {
+            fetch(`${publicApiBaseURL}/positionRecords/latest`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then(response => {
+                if (!response.ok) {
+                    console.log('Error getting trucks location data');
+                }
+                return response.json();
+            }).then(data => {
+                console.log("Received Truck location data.");
+                data.forEach((truckLocationUpdate: TruckLocationUpdateDTO) => {
+                    if (Date.now() - truckLocationUpdate.timestamp > maxUpdateAge) return;
+                    setPois((prevState: Poi[]) => updatePois(prevState, truckLocationUpdate));
+                });
+            });
+        }, 4000);
+
+        return () => clearInterval(intervalId);
     }, []);
 
     return <>
