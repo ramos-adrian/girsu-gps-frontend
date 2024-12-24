@@ -36,6 +36,7 @@ export const brokerURL = process.env.NEXT_PUBLIC_WEB_SOCKET_BROKER_URL as string
 export const truckLocationUpdatesTopic = process.env.NEXT_PUBLIC_WEB_SOCKET_TRUCK_LOCATION_UPDATES_TOPIC as string
 
 export const maxUpdateAge =  10 * 60 * 1000; // Maximum age of a truck update (in milliseconds) to be shown on the map
+export const pollingInterval = parseInt(process.env.NEXT_PUBLIC_POLLING_INTERVAL as string); // Interval to poll the API for truck updates (in milliseconds)
 
 // Links
 export const facebookLink = process.env.NEXT_PUBLIC_FACEBOOK_LINK as string

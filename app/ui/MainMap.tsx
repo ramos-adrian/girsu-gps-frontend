@@ -10,7 +10,7 @@ import {
     cityZoom,
     mapDefaultCenter,
     mapRestriction,
-    mapStyle, maxUpdateAge, publicApiBaseURL
+    mapStyle, maxUpdateAge, pollingInterval, publicApiBaseURL
 } from "@/app/config";
 
 /**
@@ -87,7 +87,7 @@ const PoiMarkers = () => {
                     setPois((prevState: Poi[]) => updatePois(prevState, truckLocationUpdate));
                 });
             });
-        }, 4000);
+        }, pollingInterval);
 
         return () => clearInterval(intervalId);
     }, []);
