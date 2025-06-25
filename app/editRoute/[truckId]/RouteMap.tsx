@@ -15,6 +15,8 @@ import {
 import React, {useEffect, useState} from "react";
 import {Button} from "@/components/ui/button";
 import {Truck} from "@/app/types";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faTrashAlt} from "@fortawesome/free-solid-svg-icons";
 
 type latLng = { id: string, lat: number, lng: number };
 type setPois = (value: (((prevState: latLng[]) => latLng[]) | latLng[])) => void;
@@ -83,6 +85,24 @@ const SaveRouteBtn = ({truckId, polyline, setPois}: SaveRouteBtnProps) => {
 
         }}
         >Guardar recorrido</Button>
+    )
+}
+
+interface ClearRouteBtnProps {
+    polyline?: null | google.maps.Polyline
+    setPois: setPois,
+}
+
+const ClearRouteBtn = ({polyline, setPois}: ClearRouteBtnProps) => {
+
+    return (
+        <Button className="mt-2 " variant={"destructive"} onClick={() => {
+            setPois([]);
+            polyline?.setPath([]);
+        }}>
+            <FontAwesomeIcon icon={faTrashAlt} className="mr-2"/>
+            Limpiar Recorrido
+        </Button>
     )
 }
 
@@ -200,6 +220,7 @@ const RouteMap = ({truck}: RouteMapProps) => {
             <div className='flex flex-col ml-3'>
                 <AddPointBtn setPois={setPois} polyline={polyline}/>
                 <SaveRouteBtn truckId={truck?.id} polyline={polyline} setPois={setPois}/>
+                <ClearRouteBtn polyline={polyline} setPois={setPois}/>
             </div>
         </div>
     )
