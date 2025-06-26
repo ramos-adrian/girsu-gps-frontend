@@ -15,6 +15,30 @@ import React from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTrashAlt, faRoute} from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
+import {publicApiBaseURL} from "@/app/config";
+
+const deleteTruck = async (id: number) => {
+    const url = `${publicApiBaseURL}/trucks/${id}`;
+    try {
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Optionally, you can handle the response or update the UI after deletion
+        alert("Camión eliminado correctamente");
+    } catch (error) {
+        console.error('Error deleting truck:', error);
+        alert("Error al eliminar el camión");
+    }
+}
 
 export const columns: ColumnDef<Truck>[] = [
     {
@@ -57,7 +81,7 @@ export const columns: ColumnDef<Truck>[] = [
                             <Link href={`/editRoute/${truck.id}`}>Editar ruta</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator/>
-                        <DropdownMenuItem className="text-red-500">
+                        <DropdownMenuItem className="text-red-500" onClick={() => deleteTruck(truck.id)}>
                             <FontAwesomeIcon icon={faTrashAlt} className="mr-2"/>
                             Eliminar
                         </DropdownMenuItem>
