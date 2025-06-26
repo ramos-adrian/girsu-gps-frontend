@@ -10,13 +10,14 @@ import {
     cityZoom,
     mapDefaultCenter,
     mapRestriction,
-    mapStyle, publicApiBaseURL
+    mapStyle, maxUpdateAge, pollingInterval, publicApiBaseURL
 } from "@/app/config";
 import React, {useEffect, useState} from "react";
 import {Button} from "@/components/ui/button";
-import {Truck} from "@/app/types";
+import {Poi, Truck} from "@/app/types";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTrashAlt} from "@fortawesome/free-solid-svg-icons";
+import {TruckIcon} from "@/app/ui/TruckIcon";
 
 type latLng = { id: string, lat: number, lng: number };
 type setPois = (value: (((prevState: latLng[]) => latLng[]) | latLng[])) => void;
@@ -155,6 +156,53 @@ function animateCircle(line: null | google.maps.Polyline) {
     }, 20);
 }
 
+interface TruckPoiMarkerProps {
+    truckId?: number | undefined
+}
+
+const TruckPoiMarker = ({truckId}: TruckPoiMarkerProps) => {
+
+    const [poi, setPoi] = useState<Poi>()
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            fetch(`${publicApiBaseURL}/trucks/${truckId}/positionRecords/latest`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then(response => {
+                if (!response.ok) {
+                    console.log('Error getting trucks location data');
+                }
+                return response.json();
+            }).then(data => {
+                if (Date.now() - data.timestamp > maxUpdateAge) return;
+                setPoi(
+                    {
+                        id: data.truckId,
+                        truckId: data.truckId,
+                        latitude: data.latitude,
+                        longitude: data.longitude,
+                        timestamp: data.timestamp,
+                        direction: data.direction
+                    }
+                )
+            });
+        }, pollingInterval);
+
+        return () => clearInterval(intervalId);
+    }, []);
+
+    if (!poi) return null;
+
+    return <>
+        <AdvancedMarker key={poi.truckId} position={{lat: poi.latitude, lng: poi.longitude}}>
+            <TruckIcon direction={poi.direction} />
+        </AdvancedMarker>
+    </>
+}
+
 interface RouteMapProps {
     truck?: Truck
 }
@@ -185,7 +233,7 @@ const RouteMap = ({truck}: RouteMapProps) => {
                 offset: "100%",
             }],
         });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mapsLib]);
 
     useEffect(() => {
@@ -216,6 +264,7 @@ const RouteMap = ({truck}: RouteMapProps) => {
                 restriction={mapRestriction}
             >
                 <PoiMarkers pois={pois} setPois={setPois} polyline={polyline}/>
+                <TruckPoiMarker truckId={truck?.id}/>
             </Map>
             <div className='flex flex-col ml-3'>
                 <AddPointBtn setPois={setPois} polyline={polyline}/>

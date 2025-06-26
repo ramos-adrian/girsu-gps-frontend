@@ -71,4 +71,7 @@ export const TruckIcon = ({direction}: { direction: MovementDirection }) =>
                 }}
             />
         )}
+        {!direction && (
+            <FontAwesomeIcon icon={faTruck} size="2x" color="green" style={{transform: 'rotate(0deg)'}}/>
+        )}
     </div>
