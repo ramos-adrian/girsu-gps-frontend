@@ -81,7 +81,6 @@ const PoiMarkers = () => {
                 }
                 return response.json();
             }).then(data => {
-                console.log("Received Truck location data.");
                 data.forEach((truckLocationUpdate: TruckLocationUpdateDTO) => {
                     if (Date.now() - truckLocationUpdate.timestamp > maxUpdateAge) return;
                     setPois((prevState: Poi[]) => updatePois(prevState, truckLocationUpdate));

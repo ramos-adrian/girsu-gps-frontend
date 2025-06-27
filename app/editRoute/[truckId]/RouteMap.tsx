@@ -16,22 +16,121 @@ import React, {useEffect, useState} from "react";
 import {Button} from "@/components/ui/button";
 import {Poi, Truck} from "@/app/types";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faTrashAlt} from "@fortawesome/free-solid-svg-icons";
+import {faTrashAlt, faPlay, faStop} from "@fortawesome/free-solid-svg-icons";
 import {TruckIcon} from "@/app/ui/TruckIcon";
 
 type latLng = { id: string, lat: number, lng: number };
 type setPois = (value: (((prevState: latLng[]) => latLng[]) | latLng[])) => void;
 
-interface AddPointBtnProps {
-    setPois: setPois,
-    polyline: null | google.maps.Polyline
+interface RecordRouteBtnProps {
+    polyline: null | google.maps.Polyline,
+    truckId?: number | undefined,
+    setPois: (value: (((prevState: latLng[]) => latLng[]) | latLng[])) => void,
+    truckPoi?: Poi | undefined,
+    pois: latLng[],
+    setClearBtnEnabled: (value: (((prevState: boolean) => boolean) | boolean)) => void,
+    setSaveBtnEnabled: (value: (((prevState: boolean) => boolean) | boolean)) => void,
+    setAddPointBtnEnabled: (value: (((prevState: boolean) => boolean) | boolean)) => void
 }
 
-const AddPointBtn = ({setPois, polyline}: AddPointBtnProps) => {
+const RecordRouteBtn = ({
+                            polyline,
+                            setPois,
+                            truckPoi,
+                            pois,
+                            setClearBtnEnabled,
+                            setSaveBtnEnabled,
+                            setAddPointBtnEnabled
+                        }: RecordRouteBtnProps) => {
+    const [isRecording, setIsRecording] = useState(false);
+
+    useEffect(() => {
+        if (!isRecording) {
+            return;
+        }
+
+        if (!truckPoi || !polyline) return;
+
+        const last = pois[pois.length - 1];
+        if (last && last.lat === truckPoi.latitude && last.lng === truckPoi.longitude) {
+            return;
+        }
+
+        setPois(prev => {
+            const newPoint = {id: uuidv4(), lat: truckPoi.latitude, lng: truckPoi.longitude};
+            const newPois = [...prev, newPoint];
+            polyline?.setPath([...prev.map(poi => ({lat: poi.lat, lng: poi.lng})), {
+                lat: newPoint.lat,
+                lng: newPoint.lng
+            }]);
+            return newPois;
+        });
+
+    }, [truckPoi]);
+
+    return (
+        <Button
+            variant={isRecording ? "destructive" : "default"}
+            onClick={() => {
+                if (!polyline || !truckPoi) {
+                    console.error("Polyline or Truck not initialized");
+                    return;
+                }
+                setClearBtnEnabled(isRecording);
+                setSaveBtnEnabled(isRecording);
+                setAddPointBtnEnabled(isRecording)
+                if (isRecording) {
+                    saveRoute(truckPoi.truckId, polyline, setPois, false);
+                }
+                setIsRecording(prev => !prev)
+            }}
+        >
+            {!isRecording && <FontAwesomeIcon icon={faPlay} className="mr-2"/>}
+            {isRecording && <FontAwesomeIcon icon={faStop} className="mr-2"/>}
+            {isRecording ? "Detener grabación" : "Grabar recorrido"}
+        </Button>
+    )
+}
+
+const saveRoute = (truckId: number, polyline: google.maps.Polyline, setPois: setPois, snap: boolean) => {
+    const route = polyline?.getPath().getArray().map((point: google.maps.LatLng) => {
+        return {lat: point.lat(), lng: point.lng()}
+    });
+
+    fetch(`${publicApiBaseURL}/trucks/${truckId}/route?snap=${snap}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(route),
+    }).then(response => {
+        if (!response.ok) {
+            console.log('Error saving route');
+        }
+        return response.json();
+    }).then(data => {
+        setPois(data.map((point: { lat: number, lng: number }) => {
+            return {id: uuidv4(), lat: point.lat, lng: point.lng}
+        }));
+        polyline?.setPath(data.map((point: { lat: number, lng: number }) => {
+            return {lat: point.lat, lng: point.lng}
+        }));
+    })
+
+}
+
+interface AddPointBtnProps {
+    setPois: setPois,
+    polyline: null | google.maps.Polyline,
+    addPointBtnEnabled: boolean
+}
+
+const AddPointBtn = ({setPois, polyline, addPointBtnEnabled}: AddPointBtnProps) => {
     const map = useMap();
 
     return (
-        <Button onClick={() => {
+        <Button className="mt-2" disabled={!addPointBtnEnabled} onClick={() => {
             if (map) {
                 const center = map.getCenter();
                 if (center) {
@@ -51,53 +150,31 @@ const AddPointBtn = ({setPois, polyline}: AddPointBtnProps) => {
 
 interface SaveRouteBtnProps {
     truckId?: number | undefined,
-    polyline?: null | google.maps.Polyline
+    polyline?: null | google.maps.Polyline,
     setPois: setPois,
+    saveBtnEnabled: boolean
 }
 
-const SaveRouteBtn = ({truckId, polyline, setPois}: SaveRouteBtnProps) => {
+const SaveRouteBtn = ({truckId, polyline, setPois, saveBtnEnabled}: SaveRouteBtnProps) => {
 
-    const route = polyline?.getPath().getArray().map((point: google.maps.LatLng) => {
-        return {lat: point.lat(), lng: point.lng()}
-    });
+    if (!truckId || !polyline) return null;
 
     return (
-        <Button className="mt-2" onClick={() => {
-            fetch(`${publicApiBaseURL}/trucks/${truckId}/route`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify(route),
-            }).then(response => {
-                if (!response.ok) {
-                    console.log('Error saving route');
-                }
-                return response.json();
-            }).then(data => {
-                setPois(data.map((point: { lat: number, lng: number }) => {
-                    return {id: uuidv4(), lat: point.lat, lng: point.lng}
-                }));
-                polyline?.setPath(data.map((point: { lat: number, lng: number }) => {
-                    return {lat: point.lat, lng: point.lng}
-                }));
-            })
-
-        }}
+        <Button className="mt-2" disabled={!saveBtnEnabled} onClick={() => saveRoute(truckId, polyline, setPois, true)}
         >Guardar recorrido</Button>
     )
 }
 
 interface ClearRouteBtnProps {
-    polyline?: null | google.maps.Polyline
+    polyline?: null | google.maps.Polyline,
     setPois: setPois,
+    clearBtnEnabled?: boolean
 }
 
-const ClearRouteBtn = ({polyline, setPois}: ClearRouteBtnProps) => {
+const ClearRouteBtn = ({polyline, setPois, clearBtnEnabled}: ClearRouteBtnProps) => {
 
     return (
-        <Button className="mt-2 " variant={"destructive"} onClick={() => {
+        <Button disabled={!clearBtnEnabled} className="mt-2 " variant={"destructive"} onClick={() => {
             setPois([]);
             polyline?.setPath([]);
         }}>
@@ -157,12 +234,12 @@ function animateCircle(line: null | google.maps.Polyline) {
 }
 
 interface TruckPoiMarkerProps {
-    truckId?: number | undefined
+    truckId?: number | undefined,
+    setTruckPoi: (value: (((prevState: (Poi | undefined)) => (Poi | undefined)) | Poi | undefined)) => void,
+    truckPoi: Poi | undefined
 }
 
-const TruckPoiMarker = ({truckId}: TruckPoiMarkerProps) => {
-
-    const [poi, setPoi] = useState<Poi>()
+const TruckPoiMarker = ({truckId, setTruckPoi, truckPoi}: TruckPoiMarkerProps) => {
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -178,7 +255,7 @@ const TruckPoiMarker = ({truckId}: TruckPoiMarkerProps) => {
                 return response.json();
             }).then(data => {
                 if (Date.now() - data.timestamp > maxUpdateAge) return;
-                setPoi(
+                setTruckPoi(
                     {
                         id: data.truckId,
                         truckId: data.truckId,
@@ -194,11 +271,11 @@ const TruckPoiMarker = ({truckId}: TruckPoiMarkerProps) => {
         return () => clearInterval(intervalId);
     }, []);
 
-    if (!poi) return null;
+    if (!truckPoi) return null;
 
     return <>
-        <AdvancedMarker key={poi.truckId} position={{lat: poi.latitude, lng: poi.longitude}}>
-            <TruckIcon direction={poi.direction} />
+        <AdvancedMarker key={truckPoi.truckId} position={{lat: truckPoi.latitude, lng: truckPoi.longitude}}>
+            <TruckIcon direction={truckPoi.direction}/>
         </AdvancedMarker>
     </>
 }
@@ -210,6 +287,10 @@ interface RouteMapProps {
 const RouteMap = ({truck}: RouteMapProps) => {
 
     const [pois, setPois] = useState<latLng[]>([]);
+    const [truckPoi, setTruckPoi] = useState<Poi>()
+    const [clearBtnEnabled, setClearBtnEnabled] = useState(true);
+    const [saveBtnEnabled, setSaveBtnEnabled] = useState(true);
+    const [addPointBtnEnabled, setAddPointBtnEnabled] = useState(true);
 
     const mapsLib = useMapsLibrary("maps");
     const geoLib = useMapsLibrary("geometry");
@@ -264,12 +345,16 @@ const RouteMap = ({truck}: RouteMapProps) => {
                 restriction={mapRestriction}
             >
                 <PoiMarkers pois={pois} setPois={setPois} polyline={polyline}/>
-                <TruckPoiMarker truckId={truck?.id}/>
+                <TruckPoiMarker truckId={truck?.id} setTruckPoi={setTruckPoi} truckPoi={truckPoi}/>
             </Map>
             <div className='flex flex-col ml-3'>
-                <AddPointBtn setPois={setPois} polyline={polyline}/>
-                <SaveRouteBtn truckId={truck?.id} polyline={polyline} setPois={setPois}/>
-                <ClearRouteBtn polyline={polyline} setPois={setPois}/>
+                <RecordRouteBtn polyline={polyline} pois={pois} setPois={setPois} truckPoi={truckPoi}
+                                setClearBtnEnabled={setClearBtnEnabled} setSaveBtnEnabled={setSaveBtnEnabled}
+                                setAddPointBtnEnabled={setAddPointBtnEnabled}/>
+                <AddPointBtn setPois={setPois} polyline={polyline} addPointBtnEnabled={addPointBtnEnabled}/>
+                <SaveRouteBtn truckId={truck?.id} polyline={polyline} setPois={setPois}
+                              saveBtnEnabled={saveBtnEnabled}/>
+                <ClearRouteBtn polyline={polyline} setPois={setPois} clearBtnEnabled={clearBtnEnabled}/>
             </div>
         </div>
     )
